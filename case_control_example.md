@@ -26,8 +26,7 @@ devtools::install_github("saeyslab/nichenetr")
 
 The main function of NicheNet only needs a list of gene names for the 1) gene set of interest, 2) expressed ligands, and 3) expressed receptors. We provide code to obtain these genes, but as minimal input users need a gene expression matrix with cell type annotations. We do recommend users to provide a Seurat (at least v3) object for additional helper functions, but this is not strictly necessary.
 
-![](figs/figure1.png){width=70%}
-
+<img src="figs/figure1.png" width="1600">
 
 ### Example data
 
@@ -134,7 +133,7 @@ These networks were translated from human to mouse gene names using one-to-one o
 Here, we describe the procedure for both the sender-focused and sender-agnostic approach, as shown here:
 
 
-![](figs/figure2.png){width=75%}
+<img src="figs/figure1.png" width="1500">
 
 As two conditions are present in this example dataset, the gene set of interest is chosen as the DE genes between these conditions in the receiver cell type. Box 2 details the use of wrapper functions that can automatically run Steps 5-23.
 
