@@ -20,7 +20,7 @@ NicheNet can be installed by running the following command in R:
 if (!requireNamespace("devtools", quietly=TRUE))
   install.packages("devtools") 
 
-# devtools::install_github("saeyslab/nichenetr")
+devtools::install_github("saeyslab/nichenetr")
 
 ```
 
@@ -28,7 +28,7 @@ if (!requireNamespace("devtools", quietly=TRUE))
 
 The main function of NicheNet only needs a list of gene names for the 1) gene set of interest, 2) expressed ligands, and 3) expressed receptors. We provide code to obtain these genes, but as minimal input users need a gene expression matrix with cell type annotations. We do recommend users to provide a Seurat (at least v3) object for additional helper functions, but this is not strictly necessary.
 
-![](figs/figure1.svg){width=70%}
+![](figs/figure1.png){width=70%}
 
 
 ### Example data
@@ -97,7 +97,7 @@ These networks were translated from human to mouse gene names using one-to-one o
 Here, we describe the procedure for both the sender-focused and sender-agnostic approach, as shown here:
 
 
-![](figs/figure2.svg){width=75%}
+![](figs/figure2.png){width=75%}
 
 As two conditions are present in this example dataset, the gene set of interest is chosen as the DE genes between these conditions in the receiver cell type. Box 2 details the use of wrapper functions that can automatically run Steps 5-23.
 
@@ -113,7 +113,7 @@ library(tidyverse)
 
 ```
 
-2. *(Optional)* For older Seurat objects, update it to be compatible with the currently installed Seurat version. For expression data with older gene symbols, convert them to more recent gene symbols. 
+2. *(Optional)* For older Seurat objects, update it to be compatible with the currently installed Seurat version.
 
 ```{r feature extraction - II, message=FALSE, warning=FALSE}
 seuratObj <- UpdateSeuratObject(seuratObj)

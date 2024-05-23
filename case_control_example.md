@@ -19,14 +19,14 @@ NicheNet can be installed by running the following command in R:
 if (!requireNamespace("devtools", quietly=TRUE))
   install.packages("devtools") 
 
-# devtools::install_github("saeyslab/nichenetr")
+devtools::install_github("saeyslab/nichenetr")
 ```
 
 ### Input data
 
 The main function of NicheNet only needs a list of gene names for the 1) gene set of interest, 2) expressed ligands, and 3) expressed receptors. We provide code to obtain these genes, but as minimal input users need a gene expression matrix with cell type annotations. We do recommend users to provide a Seurat (at least v3) object for additional helper functions, but this is not strictly necessary.
 
-![](figs/figure1.svg){width=70%}
+![](figs/figure1.png){width=70%}
 
 
 ### Example data
@@ -134,7 +134,7 @@ These networks were translated from human to mouse gene names using one-to-one o
 Here, we describe the procedure for both the sender-focused and sender-agnostic approach, as shown here:
 
 
-![](figs/figure2.svg){width=75%}
+![](figs/figure2.png){width=75%}
 
 As two conditions are present in this example dataset, the gene set of interest is chosen as the DE genes between these conditions in the receiver cell type. Box 2 details the use of wrapper functions that can automatically run Steps 5-23.
 
@@ -149,7 +149,7 @@ library(Seurat)
 library(tidyverse) 
 ```
 
-2. *(Optional)* For older Seurat objects, update it to be compatible with the currently installed Seurat version. For expression data with older gene symbols, convert them to more recent gene symbols. 
+2. *(Optional)* For older Seurat objects, update it to be compatible with the currently installed Seurat version.
 
 
 ```r
@@ -1224,205 +1224,7 @@ A frequent use case is one where users are interested in replacing the ligand-re
 ```r
 if (!requireNamespace("liana", quietly=TRUE))
   devtools::install_github("saezlab/liana")
-```
 
-```
-## Downloading GitHub repo saezlab/liana@HEAD
-```
-
-```
-## OmnipathR    (NA     -> e19dca92d...) [GitHub]
-## basilisk.... (NA     -> e331a58c0...) [GitHub]
-## basilisk     (NA     -> db7222b53...) [GitHub]
-## filelock     (NA     -> 1.0.3       ) [CRAN]
-## dir.expiry   (NA     -> 1.8.0       ) [CRAN]
-## farver       (2.1.1  -> 2.1.2       ) [CRAN]
-## sparseMat... (NA     -> 1.12.2      ) [CRAN]
-## systemfonts  (1.0.6  -> 1.1.0       ) [CRAN]
-## vipor        (NA     -> 0.4.7       ) [CRAN]
-## beeswarm     (NA     -> 0.4.0       ) [CRAN]
-## ragg         (1.3.1  -> 1.3.2       ) [CRAN]
-## ggbeeswarm   (NA     -> 0.7.2       ) [CRAN]
-## Cairo        (NA     -> 1.6-2       ) [CRAN]
-## reticulate   (1.36.1 -> 1.37.0      ) [CRAN]
-## dqrng        (0.3.2  -> 0.4.0       ) [CRAN]
-## beachmat     (NA     -> 2.16.0      ) [CRAN]
-## rsvd         (NA     -> 1.0.5       ) [CRAN]
-## ScaledMatrix (NA     -> 1.8.1       ) [CRAN]
-## DelayedMa... (NA     -> 1.22.6      ) [CRAN]
-## BiocNeigh... (NA     -> 1.18.0      ) [CRAN]
-## openssl      (2.1.2  -> 2.2.0       ) [CRAN]
-## fastmap      (1.1.1  -> 1.2.0       ) [CRAN]
-## cachem       (1.0.8  -> 1.1.0       ) [CRAN]
-## xfun         (0.43   -> 0.44        ) [CRAN]
-## ggrastr      (NA     -> 1.0.2       ) [CRAN]
-## densvis      (NA     -> 1.10.3      ) [CRAN]
-## RcppML       (NA     -> 0.3.7       ) [CRAN]
-## BiocSingular (NA     -> 1.16.0      ) [CRAN]
-## scuttle      (NA     -> 1.10.3      ) [CRAN]
-## metapod      (NA     -> 1.8.0       ) [CRAN]
-## bluster      (NA     -> 1.10.0      ) [CRAN]
-## rmarkdown    (2.26   -> 2.27        ) [CRAN]
-## logger       (NA     -> 0.3.0       ) [CRAN]
-## scater       (NA     -> 1.28.0      ) [CRAN]
-## scran        (NA     -> 1.28.2      ) [CRAN]
-```
-
-```
-## Downloading GitHub repo saezlab/OmnipathR@HEAD
-```
-
-```
-## openssl   (2.1.2 -> 2.2.0) [CRAN]
-## xfun      (0.43  -> 0.44 ) [CRAN]
-## fastmap   (1.1.1 -> 1.2.0) [CRAN]
-## cachem    (1.0.8 -> 1.1.0) [CRAN]
-## rmarkdown (2.26  -> 2.27 ) [CRAN]
-## logger    (NA    -> 0.3.0) [CRAN]
-```
-
-```
-## Installing 6 packages: openssl, xfun, fastmap, cachem, rmarkdown, logger
-```
-
-```
-## Installing packages into '/home/chananchidas/R/x86_64-pc-linux-gnu-library/4.3'
-## (as 'lib' is unspecified)
-```
-
-```
-## ── R CMD build ─────────────────────────────────────────────────────────────────
-##      checking for file ‘/tmp/RtmpDNeda9/remotes5b275acaf0a5/saezlab-OmnipathR-e19dca9/DESCRIPTION’ ...  ✔  checking for file ‘/tmp/RtmpDNeda9/remotes5b275acaf0a5/saezlab-OmnipathR-e19dca9/DESCRIPTION’
-##   ─  preparing ‘OmnipathR’:
-##    checking DESCRIPTION meta-information ...  ✔  checking DESCRIPTION meta-information
-##   ─  checking for LF line-endings in source and make files and shell scripts
-##   ─  checking for empty or unneeded directories
-## ─  looking to see if a ‘data/datalist’ file should be added
-##   ─  building ‘OmnipathR_3.11.16.tar.gz’
-##      
-## 
-```
-
-```
-## Installing package into '/home/chananchidas/R/x86_64-pc-linux-gnu-library/4.3'
-## (as 'lib' is unspecified)
-```
-
-```
-## Downloading GitHub repo LTLA/basilisk.utils@HEAD
-```
-
-```
-## filelock   (NA -> 1.0.3) [CRAN]
-## dir.expiry (NA -> 1.8.0) [CRAN]
-```
-
-```
-## Installing 2 packages: filelock, dir.expiry
-```
-
-```
-## Installing packages into '/home/chananchidas/R/x86_64-pc-linux-gnu-library/4.3'
-## (as 'lib' is unspecified)
-```
-
-```
-## ── R CMD build ─────────────────────────────────────────────────────────────────
-##      checking for file ‘/tmp/RtmpDNeda9/remotes5b271e7c9b65/Bioconductor-basilisk.utils-e331a58/DESCRIPTION’ ...  ✔  checking for file ‘/tmp/RtmpDNeda9/remotes5b271e7c9b65/Bioconductor-basilisk.utils-e331a58/DESCRIPTION’
-##   ─  preparing ‘basilisk.utils’:
-##    checking DESCRIPTION meta-information ...  ✔  checking DESCRIPTION meta-information
-##   ─  checking for LF line-endings in source and make files and shell scripts
-##   ─  checking for empty or unneeded directories
-##   ─  building ‘basilisk.utils_1.17.0.tar.gz’
-##      
-## 
-```
-
-```
-## Installing package into '/home/chananchidas/R/x86_64-pc-linux-gnu-library/4.3'
-## (as 'lib' is unspecified)
-```
-
-```
-## Downloading GitHub repo LTLA/basilisk@HEAD
-```
-
-```
-## reticulate (1.36.1 -> 1.37.0) [CRAN]
-```
-
-```
-## Installing 1 packages: reticulate
-```
-
-```
-## Installing package into '/home/chananchidas/R/x86_64-pc-linux-gnu-library/4.3'
-## (as 'lib' is unspecified)
-```
-
-```
-## ── R CMD build ─────────────────────────────────────────────────────────────────
-##      checking for file ‘/tmp/RtmpDNeda9/remotes5b2740c938cf/Bioconductor-basilisk-db7222b/DESCRIPTION’ ...  ✔  checking for file ‘/tmp/RtmpDNeda9/remotes5b2740c938cf/Bioconductor-basilisk-db7222b/DESCRIPTION’
-##   ─  preparing ‘basilisk’:
-##    checking DESCRIPTION meta-information ...  ✔  checking DESCRIPTION meta-information
-##   ─  checking for LF line-endings in source and make files and shell scripts
-##   ─  checking for empty or unneeded directories
-##   ─  building ‘basilisk_1.15.2004.tar.gz’
-##      
-## 
-```
-
-```
-## Installing package into '/home/chananchidas/R/x86_64-pc-linux-gnu-library/4.3'
-## (as 'lib' is unspecified)
-```
-
-```
-## Skipping 10 packages ahead of CRAN: S4Vectors, BiocGenerics, S4Arrays, IRanges, DelayedArray, GenomicRanges, SummarizedExperiment, SingleCellExperiment, limma, ComplexHeatmap
-```
-
-```
-## Installing 32 packages: filelock, dir.expiry, farver, sparseMatrixStats, systemfonts, vipor, beeswarm, ragg, ggbeeswarm, Cairo, reticulate, dqrng, beachmat, rsvd, ScaledMatrix, DelayedMatrixStats, BiocNeighbors, openssl, fastmap, cachem, xfun, ggrastr, densvis, RcppML, BiocSingular, scuttle, metapod, bluster, rmarkdown, logger, scater, scran
-```
-
-```
-## Installing packages into '/home/chananchidas/R/x86_64-pc-linux-gnu-library/4.3'
-## (as 'lib' is unspecified)
-```
-
-```
-## Skipping install of 'OmnipathR' from a github remote, the SHA1 (e19dca92) has not changed since last install.
-##   Use `force = TRUE` to force installation
-```
-
-```
-## Skipping install of 'basilisk.utils' from a github remote, the SHA1 (e331a58c) has not changed since last install.
-##   Use `force = TRUE` to force installation
-```
-
-```
-## Skipping install of 'basilisk' from a github remote, the SHA1 (db7222b5) has not changed since last install.
-##   Use `force = TRUE` to force installation
-```
-
-```
-## ── R CMD build ─────────────────────────────────────────────────────────────────
-##      checking for file ‘/tmp/RtmpDNeda9/remotes5b274fb25347/saezlab-liana-4c323df/DESCRIPTION’ ...  ✔  checking for file ‘/tmp/RtmpDNeda9/remotes5b274fb25347/saezlab-liana-4c323df/DESCRIPTION’
-##   ─  preparing ‘liana’:
-##    checking DESCRIPTION meta-information ...  ✔  checking DESCRIPTION meta-information
-##   ─  checking for LF line-endings in source and make files and shell scripts
-##   ─  checking for empty or unneeded directories
-##   ─  building ‘liana_0.1.13.tar.gz’
-##      
-## 
-```
-
-```
-## Installing package into '/home/chananchidas/R/x86_64-pc-linux-gnu-library/4.3'
-## (as 'lib' is unspecified)
-```
-
-```r
 liana_db <- liana::decomplexify(liana::select_resource("CellPhoneDB")[[1]])
 liana_db <- rename(liana_db, from = source_genesymbol, to = target_genesymbol)
 liana_db$source <- "liana"
