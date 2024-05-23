@@ -10,7 +10,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Installation and data loading
+## Installation and data loading
 
 ### Installation
 
@@ -29,7 +29,6 @@ devtools::install_github("saeyslab/nichenetr")
 The main function of NicheNet only needs a list of gene names for the 1) gene set of interest, 2) expressed ligands, and 3) expressed receptors. We provide code to obtain these genes, but as minimal input users need a gene expression matrix with cell type annotations. We do recommend users to provide a Seurat (at least v3) object for additional helper functions, but this is not strictly necessary.
 
 ![](figs/figure1.png){width=70%}
-
 
 ### Example data
 
@@ -92,7 +91,7 @@ The ligand-target prior model is a matrix describing the potential that a ligand
 
 These networks were translated from human to mouse gene names using one-to-one orthologs when feasible, and one-to-many conversion was allowed when necessary (for instance, when one human gene symbol corresponded to two mouse gene symbols). Users that are interested in building prior models for other organisms can either create an organism-specific model using data sources relevant to that organism, or use the existing human NicheNet model to convert human gene symbols to their corresponding one-to-one orthologs in the organism of interest. However, this decision depends on one hand, the availability of data for the organism of interest and on the other, the homology between humans and the organism of interest. For instance, using the human model and converting gene symbols might work for primates, but creating a new model from species-specific data sources is better suited for organisms like Drosophila.
 
-# Procedure
+## Procedure
 
 Here, we describe the procedure for both the sender-focused and sender-agnostic approach, as shown here:
 
@@ -101,7 +100,7 @@ Here, we describe the procedure for both the sender-focused and sender-agnostic 
 
 As two conditions are present in this example dataset, the gene set of interest is chosen as the DE genes between these conditions in the receiver cell type. Box 2 details the use of wrapper functions that can automatically run Steps 5-23.
 
-## Feature extraction
+### Feature extraction
 
 1. Load required libraries.
 
@@ -235,7 +234,7 @@ length(background_expressed_genes)
 head(background_expressed_genes)
 ```
 
-## Ligand activity analysis and downstream prediction
+### Ligand activity analysis and downstream prediction
 
 12. Perform the ligand activity analysis, then sort the ligands based on the area under the precision-recall curve (AUPR).
 
@@ -309,7 +308,7 @@ head(ligand_receptor_links_df)
 
 ```
 
-## Visualizations
+### Visualizations
 
 Visualizations covered in this section include: heatmaps of ligand-target regulatory potential (Steps 17-18), ligand-receptor interaction potential (Step 19), ligand activity (Step 20), and log-fold change of ligands between treatment conditions (Steps 21-22); a dot plot of cell type expression and percentage (Step 23); a line plot comparing ligand rankings between the sender-agnostic and -focused approach (Step 24); chord diagrams (Steps 25-29); and a signaling graph (Steps 30-31). This section can be followed in its entirety only for the sender-focused approach (i.e., if all optional code in the previous sections have been executed); for the sender-agnostic approach, only Steps 17-20 and Steps 30-31 are relevant.
 
@@ -523,7 +522,7 @@ DiagrammeR::render_graph(signaling_graph, layout = "tree")
 
 ```
 
-## Prioritization of ligand-receptor pairs
+### Prioritization of ligand-receptor pairs
 
 This section is only applicable for the sender-focused approach. Whereas Steps 12-14 only prioritize ligands based on ligand activity, this section incorporates relative expression and differential expression to further prioritize ligand-receptor pairs associated with specific sender and receiver cell types.
 
