@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.width=8)
 ```
 
 ## Installation and data loading
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 NicheNet can be installed by running the following command in R:
 
-```{r software installation}
+```{r software installation, eval=FALSE}
 if (!requireNamespace("devtools", quietly=TRUE))
   install.packages("devtools") 
 
@@ -44,7 +44,6 @@ To download the file within the R session, entering the following commands:
 
 options(timeout = 3600) # increase time limit for downloading the data 
 seuratObj <- readRDS(url("https://zenodo.org/record/3531889/files/seuratObj.rds")) 
-
 ```
 
 If the file is downloaded within the R session, it will have to be downloaded again once the session is restarted.
@@ -323,9 +322,9 @@ active_ligand_target_links <- prepare_ligand_target_visualization(
 
 ```
 
-18. Order the rows to follow the rankings of the ligands, and the columns alphabetically (Figure 3a).
+18. Order the rows to follow the rankings of the ligands, and the columns alphabetically.
 
-```{r visualizations-II}
+```{r visualizations-II, fig.width=10}
 
 order_ligands <- rev(intersect(best_upstream_ligands, colnames(active_ligand_target_links))) 
 order_targets <- intersect(unique(active_ligand_target_links_df$target), rownames(active_ligand_target_links)) 
@@ -338,7 +337,7 @@ vis_ligand_target <- t(active_ligand_target_links[order_targets,order_ligands])
 
 ```
 
-19. Create a heatmap for ligand-receptor interactions (Figure 3b).
+19. Create a heatmap for ligand-receptor interactions.
 
 ```{r visualizations-III}
 
@@ -352,9 +351,9 @@ vis_ligand_receptor_network <- prepare_ligand_receptor_visualization(
  
 ```
 
-20. Create a heatmap of the ligand activity measure (Figure 3c).
+20. Create a heatmap of the ligand activity measure.
 
-```{r visualizations-IV}
+```{r visualizations-IV, fig.width=2.5, fig.height = 5}
 
 ligand_aupr_matrix <- column_to_rownames(ligand_activities, "test_ligand") 
 ligand_aupr_matrix <- ligand_aupr_matrix[rev(best_upstream_ligands), "aupr_corrected", drop=FALSE] 
@@ -390,9 +389,9 @@ DE_table_top_ligands <- column_to_rownames(DE_table_top_ligands, "gene")
  
 ```
 
-22. Create the heatmap (Figure 3d).
+22. Create the heatmap.
 
-```{r visualizations-VI}
+```{r visualizations-VI, fig.width = 6, fig.height = 7}
 
 vis_ligand_lfc <- as.matrix(DE_table_top_ligands[rev(best_upstream_ligands), ]) 
 
@@ -404,9 +403,9 @@ vis_ligand_lfc <- as.matrix(DE_table_top_ligands[rev(best_upstream_ligands), ])
  
 ```
 
-23. Create a dot plot showing the average expression of ligands per cell type, as well as the percentage of cells from the cell type expressing the ligands (Figure 3e).
+23. Create a dot plot showing the average expression of ligands per cell type, as well as the percentage of cells from the cell type expressing the ligands.
 
-```{r visualizations-VII}
+```{r visualizations-VII, fig.height = 7}
 
 DotPlot(subset(seuratObj, celltype %in% sender_celltypes),
         features = rev(best_upstream_ligands), cols = "RdYlBu") + 
@@ -415,7 +414,7 @@ DotPlot(subset(seuratObj, celltype %in% sender_celltypes),
 
 ```
 
-24. *(Optional)* Create a line plot comparing the rankings between the sender-agnostic and sender-focused approach (Figure 3f).
+24. *(Optional)* Create a line plot comparing the rankings between the sender-agnostic and sender-focused approach.
 
 ```{r visualizations-VIII}
 
@@ -467,7 +466,7 @@ vis_circos_obj <- prepare_circos_visualization(circos_links,
 
 ```
 
-28. Draw the chord diagram (Figure 3g).
+28. Draw the chord diagram.
 
 ```{r visualizations-XII, fig.width=10}
 
@@ -509,7 +508,7 @@ active_signaling_network <- get_ligand_signaling_path(ligands_all = ligands_oi,
 
 ```
 
-31. Convert the data frames into a DiagrammeR object, and render the signaling graph (Figure 3h).
+31. Convert the data frames into a DiagrammeR object, and render the signaling graph.
 
 ```{r visualizations-XV}
 
@@ -674,7 +673,7 @@ prioritizing_weights <- c("de_ligand" = 1,
 
 ```
 
-35. Create a mushroom plot depicting ligand expression on one semicircle, and receptor expression on the other (Figure 3i).
+35. Create a mushroom plot depicting ligand expression on one semicircle, and receptor expression on the other.
 
 ```{r prioritization-X, fig.height=7, fig.width=8}
 
@@ -790,7 +789,7 @@ Additionally, the sender-agnostic approach can be explicitly run by setting `sen
 
 The resulting object is a list comprising various components, including the gene set of interest and background genes that were used for the analysis (`geneset_oi` and `background_expressed_genes`), output from the ligand activity analysis (`ligand_activities`), targets and receptors corresponding to the identified ligands (`top_targets` and `top_receptors`), and visualizations (`ligand_target_heatmap`, `ligand_expression_dotplot`, `ligand_receptor_heatmap`, etc.). If the sender-focused approach is used, the line plot from Step 24 will also be generated.
 
-Another wrapper function, `nichenet_seuratobj_cluster_de`, calculates DE genes between two cell types as the gene set of interest. Additionally, when filtering for potential ligands, we only consider expressed ligands whose receptors are expressed by the "reference" receiver cell type. This function should only be used for specific biological scenarios, as shown in Figure 2. An example of using this function for the scenario where cell types differentiation occurs due to its niche is as follows:
+Another wrapper function, `nichenet_seuratobj_cluster_de`, calculates DE genes between two cell types as the gene set of interest. Additionally, when filtering for potential ligands, we only consider expressed ligands whose receptors are expressed by the "reference" receiver cell type. This function should only be used for specific biological scenarios, as shown in the flowchart. An example of using this function for the scenario where cell types differentiation occurs due to its niche is as follows:
 
 ```{r Wrapper - II, eval=FALSE}
 
