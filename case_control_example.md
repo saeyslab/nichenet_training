@@ -815,8 +815,10 @@ signaling_graph <- diagrammer_format_signaling_graph(
   ligands_all = ligands_oi, targets_all = targets_oi,
   sig_color = "indianred", gr_color = "steelblue") 
 
-# DiagrammeR::render_graph(signaling_graph, layout = "tree") 
+DiagrammeR::render_graph(signaling_graph, layout = "tree") 
 ```
+
+<img src="case_control_example_files/figure-gfm/visualizations-XV-1.png" style="width:60.0%" />
 
 ### Prioritization of ligand-receptor pairs
 
