@@ -10,76 +10,25 @@ output:
 knitr::opts_chunk$set(echo = TRUE, fig.width=8)
 ```
 
-## Installation and data loading
+Before starting this tutorial, please make sure you have installed NicheNet and downloaded the required data and networks, as described in the README file. The data and networks are assumed to be stored in the `data/` and `networks/` folder relative to to the project file. You can check your working directory with `getwd()` and set it with `setwd()`. 
 
-### Installation
+### Load data and networks
 
-NicheNet can be installed by running the following command in R:
+In this case study, we will use mouse NICHE-seq data from Medaglia et al. (2017) to explore intercellular communication in the T cell area in the inguinal lymph node before and 72 hours after lymphocytic choriomeningitis virus (LCMV) infection. Specifically, we will prioritize which ligands can best explain the downstream changes after LCMV infection in CD8 T cells as the receiver population. This dataset contains 13,541 genes and 5,027 cells from 6 cell populations: CD4 T cells (including regulatory T cells), CD8 T cells, B cells, NK cells, dendritic cells (DCs) and inflammatory monocytes.
 
-```{r software installation, eval=FALSE}
-if (!requireNamespace("devtools", quietly=TRUE))
-  install.packages("devtools") 
 
-devtools::install_github("saeyslab/nichenetr")
-
+```{r load data}
+seuratObj <- readRDS("data/seuratObj.rds")
 ```
 
-### Input data
 
-The main function of NicheNet only needs a list of gene names for the 1) gene set of interest, 2) expressed ligands, and 3) expressed receptors. We provide code to obtain these genes, but as minimal input users need a gene expression matrix with cell type annotations. We do recommend users to provide a Seurat (at least v3) object for additional helper functions, but this is not strictly necessary.
+Three networks are required to run the NicheNet analysis: the ligand-target prior model, the ligand-receptor network, and the weighted ligand-receptor network. We provide these networks with either human or mouse gene symbols, but as this study was performed in mouse, we will use the mouse networks. 
 
-![](figs/figure1.png){width=70%}
+```{r load NicheNet networks}
 
-### Example data
-
-As example expression data of interacting cells, we will use mouse NICHE-seq data from Medaglia et al. (2017) to explore intercellular communication in the T cell area in the inguinal lymph node before and 72 hours after lymphocytic choriomeningitis virus (LCMV) infection. Specifically, we will prioritize which ligands can best explain the downstream changes after LCMV infection in CD8 T cells as the receiver population. This dataset contains 13,541 genes and 5,027 cells from 6 cell populations: CD4 T cells (including regulatory T cells), CD8 T cells, B cells, NK cells, dendritic cells (DCs) and inflammatory monocytes.
-
-The data can be downloaded by clicking "seuratObj.rds" at [https://zenodo.org/record/3531889]. To download the file with the command line, commands like wget or curl can be used (Linux/macOS): 
-
-`wget https://zenodo.org/record/3531889/files/seuratObj.rds`
-
-To download the file within the R session, entering the following commands:
-
-```{r download data within the R session}
-
-options(timeout = 3600) # increase time limit for downloading the data 
-seuratObj <- readRDS(url("https://zenodo.org/record/3531889/files/seuratObj.rds")) 
-```
-
-If the file is downloaded within the R session, it will have to be downloaded again once the session is restarted.
-
-### Human/Mouse networks
-
-Three networks are required to run the NicheNet analysis: the ligand-target prior model, the ligand-receptor network, and the weighted ligand-receptor network. We provide these networks with either human or mouse gene symbols and they can be downloaded at [https://zenodo.org/record/7074291/]. This repository also contains other networks not used in the main analysis but in an additional visualization step (Step 30) and during model construction (Box 1). As with the example data, they can be downloaded locally through the website or command line, or in the R session. We recommend users to download them locally for convenience. 
-
-#### Downloading data in a terminal
-
-```{r download NicheNet networks CLI, eval=FALSE}
-
-ZENODO_PATH=https://zenodo.org/record/7074291/files
-
-# Human ligand-target, ligand-receptor, and weighted networks
-wget $ZENODO_PATH/ligand_target_matrix_nsga2r_final.rds
-wget $ZENODO_PATH/lr_network_human_21122021.rds
-wget $ZENODO_PATH/weighted_networks_nsga2r_final.rds
-
-# Mouse ligand-target, ligand-receptor, and weighted networks
-wget $ZENODO_PATH/ligand_target_matrix_nsga2r_final_mouse.rds
-wget $ZENODO_PATH/lr_network_mouse_21122021.rds
-wget $ZENODO_PATH/weighted_networks_nsga2r_final_mouse.rds
-
-```
-
-#### Download the file in the R session, mouse example
-
-```{r download NicheNet networks}
-
-zenodo_path <- "https://zenodo.org/record/7074291/files/" 
-
-ligand_target_matrix <- readRDS(url(paste0(zenodo_path, "ligand_target_matrix_nsga2r_final_mouse.rds"))) 
-lr_network <- readRDS(url(paste0(zenodo_path, "lr_network_mouse_21122021.rds"))) 
-weighted_networks <- readRDS(url(paste0(zenodo_path, "weighted_networks_nsga2r_final_mouse.rds"))) 
-
+ligand_target_matrix <- readRDS("networks/ligand_target_matrix_nsga2r_final_mouse.rds")
+lr_network <- readRDS("networks/lr_network_mouse_21122021.rds")
+weighted_networks <- readRDS("networks/weighted_networks_nsga2r_final_mouse.rds")
 
 ligand_target_matrix[1:5, 1:5] # target genes in rows, ligands in columns
 head(lr_network)
@@ -90,12 +39,12 @@ The ligand-target prior model is a matrix describing the potential that a ligand
 
 These networks were translated from human to mouse gene names using one-to-one orthologs when feasible, and one-to-many conversion was allowed when necessary (for instance, when one human gene symbol corresponded to two mouse gene symbols). Users that are interested in building prior models for other organisms can either create an organism-specific model using data sources relevant to that organism, or use the existing human NicheNet model to convert human gene symbols to their corresponding one-to-one orthologs in the organism of interest. However, this decision depends on one hand, the availability of data for the organism of interest and on the other, the homology between humans and the organism of interest. For instance, using the human model and converting gene symbols might work for primates, but creating a new model from species-specific data sources is better suited for organisms like Drosophila.
 
-## Procedure
+## Part I. Basic NicheNet analysis
 
 Here, we describe the procedure for both the sender-focused and sender-agnostic approach, as shown here:
 
 
-![](figs/figure2.png){width=75%}
+![](../figs/figure2.png){width=75%}
 
 As two conditions are present in this example dataset, the gene set of interest is chosen as the DE genes between these conditions in the receiver cell type. Box 2 details the use of wrapper functions that can automatically run Steps 5-23.
 
@@ -521,7 +470,49 @@ DiagrammeR::render_graph(signaling_graph, layout = "tree")
 
 ```
 
-### Prioritization of ligand-receptor pairs
+### Wrapper functions
+
+To streamline the NicheNet analysis, we introduce three wrapper functions that automate Steps 5-23. The function `nichenet_seuratobj_aggregate` calculates the gene set of interest as the DE genes between two conditions within the receiver cell type. This function can be used to replicate the analysis in this paper as follows:
+
+```{r Wrapper - I}
+
+nichenet_output <- nichenet_seuratobj_aggregate(
+  seurat_obj = seuratObj,
+  receiver = "CD8 T",
+  sender = c("CD4 T","Treg", "Mono", "NK", "B", "DC"),
+  condition_colname = "aggregate",
+  condition_oi = "LCMV",
+  condition_reference = "SS",
+  ligand_target_matrix = ligand_target_matrix,
+  lr_network = lr_network,
+  weighted_networks = weighted_networks) 
+
+# Preview
+names(nichenet_output)
+```
+
+Additionally, the sender-agnostic approach can be explicitly run by setting `sender = "undefined"`.
+
+The resulting object is a list comprising various components, including the gene set of interest and background genes that were used for the analysis (`geneset_oi` and `background_expressed_genes`), output from the ligand activity analysis (`ligand_activities`), targets and receptors corresponding to the identified ligands (`top_targets` and `top_receptors`), and visualizations (`ligand_target_heatmap`, `ligand_expression_dotplot`, `ligand_receptor_heatmap`, etc.). If the sender-focused approach is used, the line plot from Step 24 will also be generated.
+
+Another wrapper function, `nichenet_seuratobj_cluster_de`, calculates DE genes between two cell types as the gene set of interest. Additionally, when filtering for potential ligands, we only consider expressed ligands whose receptors are expressed by the "reference" receiver cell type. This function should only be used for specific biological scenarios, as shown in the flowchart. An example of using this function for the scenario where cell types differentiation occurs due to its niche is as follows:
+
+```{r Wrapper - II, eval=FALSE}
+
+nichenet_seuratobj_cluster_de(
+  seurat_obj = seurat_obj,
+  receiver_affected = differentiated_celltype,
+  receiver_reference = progenitor_cell,
+  sender = niche_celltypes,
+  ligand_target_matrix, lr_network,
+  weighted_networks)
+
+```
+
+The final wrapper function, `nichenet_seuratobj_aggregate_cluster_de`, combines the aforementioned wrappers. The gene set of interest is calculated as the DE genes between the affected receiver cell type under the condition of interest and the reference receiver cell type in the reference condition.
+
+
+## Part II. Prioritization of ligand-receptor pairs
 
 This section is only applicable for the sender-focused approach. Whereas Steps 12-14 only prioritize ligands based on ligand activity, this section incorporates relative expression and differential expression to further prioritize ligand-receptor pairs associated with specific sender and receiver cell types.
 
@@ -688,166 +679,6 @@ make_mushroom_plot(prioritized_table, top_n = 30,
   theme(legend.justification = legend_adjust,
         axis.title.x = element_text(hjust = 0.25))
 
-```
-
-## Box 1. Constructing your own prior model
-
-As the NicheNet prior model was constructed by integrating ligand-receptor, signaling, and gene regulatory databases, it is possible to replace each of these networks with external data sources. Constructing a customized prior model thus requires three directed networks, represented as data frames comprising three columns: `from`, `to`, and `source`. The `source` column contains the originating database of the interaction. As the reliability of each database can vary, we optimized the weights of each data source based on our validation procedure (as explained in Comparison with other methods). These optimized weights (`optimized_source_weights_df`), along with hyperparameters for model construction (`hyperparameter_list`), are provided in the NicheNet package. Key hyperparameters include correction factors for dominant hubs in the ligand-signaling and gene regulatory networks, as well as the central damping factor of the Personalized PageRank algorithm, the network propagation mechanism used to determine the ligand-target regulatory potential.
-
-Note that the variable names of the networks have been changed from the manuscript in order to not overwrite the mouse networks, which will be used in Box 2.
-
-```{r Construct your own prior model - I}
-
-zenodo_path <- "https://zenodo.org/record/7074291/files/"
-lr_network_human <- readRDS(url(paste0(zenodo_path, "lr_network_human_21122021.rds")))
-sig_network_human <- readRDS(url(paste0(zenodo_path, "signaling_network_human_21122021.rds")))
-gr_network_human <- readRDS(url(paste0(zenodo_path, "gr_network_human_21122021.rds")))
-
-# Aggregate the individual data sources in a weighted manner to obtain
-# a weighted integrated signaling network
-weighted_networks_box1 <- construct_weighted_networks(
-  lr_network = lr_network_human,
-  sig_network = sig_network_human,
-  gr_network = gr_network_human,
-  source_weights_df = rename(optimized_source_weights_df, weight = avg_weight))
-
-# Downweigh the importance of signaling and gene regulatory hubs 
-# Use the optimized parameters of this 
-weighted_networks_box1 <- apply_hub_corrections(
-  weighted_networks = weighted_networks_box1,
-  lr_sig_hub = hyperparameter_list[hyperparameter_list$parameter == "lr_sig_hub",]$avg_weight,
-  gr_hub = hyperparameter_list[hyperparameter_list$parameter == "gr_hub",]$avg_weight
-  ) 
-
-```
-
-In this example, we will calculate target gene regulatory potential scores for TNF and the combination TNF+IL6. 
-
-```{r Construct your own prior model - II}
-# To compute it for all 1248 ligands (~1 min):
-# ligands <- as.list(unique(lr_network$from))
-
-ligands <- list("TNF", c("TNF","IL6"))
-ligand_target_matrix_box1 <- construct_ligand_target_matrix(
-  weighted_networks = weighted_networks_box1,
-  ligands = ligands,
-  algorithm = "PPR",
-  damping_factor = hyperparameter_list[hyperparameter_list$parameter == "damping_factor",]$avg_weight,
-  ltf_cutoff = hyperparameter_list[hyperparameter_list$parameter == "ltf_cutoff",]$avg_weight
-  )
-
-```
-
-
-A frequent use case is one where users are interested in replacing the ligand-receptor network in NicheNet with those of expression permutation tools in order to make their results more comparable. To achieve this, we recommend employing LIANA (Dimitrov et al., 2022), a comprehensive CCC framework that integrates both resources and computational algorithms for ligand-receptor interaction inference. The `show_resources` function is used to check which resources are present in LIANA, and `select_resource` returns a data frame of the interactions in that resource. The `decomplexify` function of LIANA is necessary for this integration, as it separate receptors into their respective subunits. Note that unlike before, `source_weights_df` only represents unoptimized weights, where the weight of every data source is 1.
-
-```{r Construct your own prior model - III}
-if (!requireNamespace("liana", quietly=TRUE))
-  devtools::install_github("saezlab/liana")
-
-liana_db <- liana::decomplexify(liana::select_resource("CellPhoneDB")[[1]])
-liana_db <- rename(liana_db, from = source_genesymbol, to = target_genesymbol)
-liana_db$source <- "liana"
-liana_db <- select(liana_db, from, to, source)
-
-# Change source weights data frame (but in this case all source weights are 1)
-source_weights <- add_row(source_weights_df,
-                          source = "liana",
-                          weight = 1, .before = 1)
-
-# Construct weighted network as before
-weighted_networks_liana <- construct_weighted_networks(
-  lr_network = liana_db,
-  sig_network = sig_network_human,
-  gr_network = gr_network_human,
-  source_weights_df = source_weights)
-
-```
-
-## Box 2. Wrapper functions
-
-To streamline the NicheNet analysis, we introduce three wrapper functions that automate Steps 5-23. The function `nichenet_seuratobj_aggregate` calculates the gene set of interest as the DE genes between two conditions within the receiver cell type. This function can be used to replicate the analysis in this paper as follows:
-
-```{r Wrapper - I}
-
-nichenet_output <- nichenet_seuratobj_aggregate(
-  seurat_obj = seuratObj,
-  receiver = "CD8 T",
-  sender = c("CD4 T","Treg", "Mono", "NK", "B", "DC"),
-  condition_colname = "aggregate",
-  condition_oi = "LCMV",
-  condition_reference = "SS",
-  ligand_target_matrix = ligand_target_matrix,
-  lr_network = lr_network,
-  weighted_networks = weighted_networks) 
-
-# Preview
-names(nichenet_output)
-```
-
-Additionally, the sender-agnostic approach can be explicitly run by setting `sender = "undefined"`.
-
-The resulting object is a list comprising various components, including the gene set of interest and background genes that were used for the analysis (`geneset_oi` and `background_expressed_genes`), output from the ligand activity analysis (`ligand_activities`), targets and receptors corresponding to the identified ligands (`top_targets` and `top_receptors`), and visualizations (`ligand_target_heatmap`, `ligand_expression_dotplot`, `ligand_receptor_heatmap`, etc.). If the sender-focused approach is used, the line plot from Step 24 will also be generated.
-
-Another wrapper function, `nichenet_seuratobj_cluster_de`, calculates DE genes between two cell types as the gene set of interest. Additionally, when filtering for potential ligands, we only consider expressed ligands whose receptors are expressed by the "reference" receiver cell type. This function should only be used for specific biological scenarios, as shown in the flowchart. An example of using this function for the scenario where cell types differentiation occurs due to its niche is as follows:
-
-```{r Wrapper - II, eval=FALSE}
-
-nichenet_seuratobj_cluster_de(
-  seurat_obj = seurat_obj,
-  receiver_affected = differentiated_celltype,
-  receiver_reference = progenitor_cell,
-  sender = niche_celltypes,
-  ligand_target_matrix, lr_network,
-  weighted_networks)
-
-```
-
-The final wrapper function, `nichenet_seuratobj_aggregate_cluster_de`, combines the aforementioned wrappers. The gene set of interest is calculated as the DE genes between the affected receiver cell type under the condition of interest and the reference receiver cell type in the reference condition.
-
-## Box 3. Assessing the quality of predicted ligands
-
-We can assess the quality of prioritized ligands by constructing a random forest model built using the top 30 predicted ligands. The aim is to evaluate its ability to predict if a particular gene belongs to the target gene set. Using kfold cross-validation, 1/k of the target gene set is isolated as “unseen” data. The performance of the model can then be evaluated using classification metrics like AUPR and AUROC, or using Fisher’s exact test on the confusion matrix.  
-
-```{r QC ligands - Random Forest, warning=FALSE}
-# Define cross-validation folds and number of iterations
-k <- 3
-n <- 10
-
-# Build random forest model and obtain prediction values
-predictions_list <- lapply(1:n,
-                           assess_rf_class_probabilities,
-                           folds = k,
-                           geneset = geneset_oi,
-                           background_expressed_genes = background_expressed_genes,
-                           ligands_oi = best_upstream_ligands,
-                           ligand_target_matrix = ligand_target_matrix)
-
-# Get classification metrics of the models, then calculate mean across all rounds
-performances_cv <- bind_rows(lapply(predictions_list, classification_evaluation_continuous_pred_wrapper))
-colMeans(performances_cv)
-
-# Calculate fraction of target genes and non-target genes
-# that are among the top 5% predicted targets
-fraction_cv <- bind_rows(lapply(predictions_list,
-                                calculate_fraction_top_predicted,
-                                quantile_cutoff = 0.95),
-                         .id = "round")
-
-# In this case, ~30% of target genes are in the top targets
-# compared to ~1% of the non-target genes
-mean(filter(fraction_cv, true_target)$fraction_positive_predicted)
-mean(filter(fraction_cv, !true_target)$fraction_positive_predicted)
-
-# Perform Fischer's exact test
-lapply(predictions_list,
-       calculate_fraction_top_predicted_fisher,
-       quantile_cutoff = 0.95)
-
-# Get which genes had the highest prediction values
-top_predicted_genes <- lapply(1:n, get_top_predicted_genes, predictions_list)
-top_predicted_genes <- reduce(top_predicted_genes, full_join, by = c("gene","true_target"))
-top_predicted_genes
 ```
 
 **Session info**

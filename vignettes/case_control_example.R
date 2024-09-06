@@ -1,11 +1,11 @@
 # This file contains the same code as the .Rmd file, but without the markdown formatting to facilitate in copy-pasting the code
 
-seuratObj <- readRDS(url("https://zenodo.org/record/3531889/files/seuratObj.rds"))
+seuratObj <- readRDS("data/seuratObj.rds")
 
-zenodo_path <- "https://zenodo.org/record/7074291/files/"
-ligand_target_matrix <- readRDS(url(paste0(zenodo_path, "ligand_target_matrix_nsga2r_final_mouse.rds")))
-lr_network <- readRDS(url(paste0(zenodo_path, "lr_network_mouse_21122021.rds")))
-weighted_networks <- readRDS(url(paste0(zenodo_path, "weighted_networks_nsga2r_final_mouse.rds")))
+ligand_target_matrix <- readRDS("networks/ligand_target_matrix_nsga2r_final_mouse.rds")
+lr_network <- readRDS("networks/lr_network_mouse_21122021.rds")
+weighted_networks <- readRDS("networks/weighted_networks_nsga2r_final_mouse.rds")
+
 
 #### Procedure (steps are separated by an empty line) ####
 library(nichenetr)
