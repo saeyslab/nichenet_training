@@ -45,10 +45,6 @@ if(!requireNamespace("devtools", quietly = TRUE)) {
   install.packages("devtools")  
 } 
 
-if(!requireNamespace("limma", quietly = TRUE)) { 
-  BiocManager::install("limma", update = FALSE) 
-} 
-
 if(!requireNamespace("ComplexHeatmap", quietly = TRUE)) { 
   BiocManager::install("ComplexHeatmap", update = FALSE) 
 } 
@@ -67,6 +63,19 @@ if(!requireNamespace("tidyverse", quietly = TRUE)) {
 
 devtools::install_github("saeyslab/nichenetr") 
 ```  
+
+Alternatively, if you are familiar with Docker, you can download our image at:
+
+```
+docker pull csangara/nichenetr:latest
+```
+
+This can be run with:
+```
+docker run -p 8787:8787 -e PASSWORD=bioc csangara/nichenetr:latest 
+```
+Then, go to `localhost:8787` in your web browser and login with the user **rstudio** and password **bioc**.
+
 
 ### Downloading the NicheNet prior model
 
