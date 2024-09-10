@@ -1,9 +1,7 @@
 ---
 title: "NicheNet training: differentiation study example"
 date: "2024-05-31"
-output:
-  html_document:
-    keep_md: yes
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -12,29 +10,22 @@ knitr::opts_chunk$set(echo = TRUE, fig.width=8)
 
 In this tutorial, we will demonstrate the procedure for the scenario where you want to explore cell-cell communication differences between cell types, instead of  between two conditions of the same cell type. This corresponds to the "Cell Localization" scenario in the flowchart below:
 
-![](figs/figure2.png){width=75%}
+![](../figs/figure2.png){width=75%}
 
-### Loading data
+### Load data and networks
 
 We will be using the mouse liver scRNA-seq data generated in the [Guilliams et al (2022) paper](https://www.sciencedirect.com/science/article/pii/S0092867421014811). A subset of this data will be used for this tutorial, available on Zenodo at [https://zenodo.org/records/5840787]. The full dataset can be accessed at the [Liver Cell Atlas](https://livercellatlas.org/).
 
 We will look at cell-cell communication differences between Kupffer cells, the resident liver macrophages, and bile duct and capsule macrophages. This means that we are interested in identifying the Kupffer cell-specific ligands important for its identity. We will be focusing on the niche cells of KCs, which are liver sinusoidal endothelial cells (LSECs), hepatocytes, and stellate cells. Therefore, we will skip the sender-agnostic approach for this analysis.
 
 
-```{r download data within the R session}
+```{r load data and networks}
 
-options(timeout = 3600) # increase time limit for downloading the data 
-seuratObj <- readRDS(url("https://zenodo.org/records/5840787/files/seurat_obj_subset_integrated_zonation.rds"))
-```
+seuratObj <- readRDS("data/seurat_obj_subset_integrated_zonation.rds")
 
-### Loading mouse networks
-
-```{r download NicheNet networks}
-zenodo_path <- "https://zenodo.org/record/7074291/files/" 
-
-ligand_target_matrix <- readRDS(url(paste0(zenodo_path, "ligand_target_matrix_nsga2r_final_mouse.rds"))) 
-lr_network <- readRDS(url(paste0(zenodo_path, "lr_network_mouse_21122021.rds"))) 
-weighted_networks <- readRDS(url(paste0(zenodo_path, "weighted_networks_nsga2r_final_mouse.rds"))) 
+ligand_target_matrix <- readRDS("networks/ligand_target_matrix_nsga2r_final_mouse.rds")
+lr_network <- readRDS("networks/lr_network_mouse_21122021.rds")
+weighted_networks <- readRDS("networks/weighted_networks_nsga2r_final_mouse.rds")
 
 ```
 

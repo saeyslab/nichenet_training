@@ -2,8 +2,8 @@
 title: "NicheNet training: case-control study example"
 date: "2024-05-31"
 output:
-  html_document:
-    keep_md: yes
+  github_document:
+    md_extensions: -fancy_lists
 ---
 
 ```{r setup, include=FALSE}
@@ -459,7 +459,7 @@ active_signaling_network <- get_ligand_signaling_path(ligands_all = ligands_oi,
 
 31. Convert the data frames into a DiagrammeR object, and render the signaling graph.
 
-```{r visualizations-XV}
+```{r visualizations-XV, message=FALSE}
 
 signaling_graph <- diagrammer_format_signaling_graph(
   signaling_graph_list = active_signaling_network,
@@ -528,7 +528,7 @@ lr_network_filtered <- filter(lr_network, from %in% potential_ligands_focused &
 33. Calculate the values required for prioritization, including DE between cell types, average expression, and DE between conditions. To use the wrapper function, follow option A. To calculate these values step-by-step, follow option B.
 
 
-A. **Using the wrapper function.**
+(A) **Using the wrapper function.**
 
 (i) Run the wrapper function. 
 
