@@ -36,7 +36,9 @@ if(!requireNamespace("ComplexHeatmap", quietly = TRUE)) {
 devtools::install_github("saeyslab/nichenetr") 
 ```  
 
-Alternatively, if you are familiar with Docker, you can download our image at:
+### Docker container
+
+If you are familiar with Docker, we provide an RStudio image with NicheNet installed at:
 
 ```
 docker pull csangara/nichenetr:latest
@@ -44,9 +46,15 @@ docker pull csangara/nichenetr:latest
 
 This can be run with:
 ```
-docker run -p 8787:8787 -e PASSWORD=bioc csangara/nichenetr:latest 
+docker run -p 8787:8787 -e PASSWORD=bioc -v /path/to/repo/:/path/to/repo/ csangara/nichenetr:latest
 ```
 Then, go to `localhost:8787` in your web browser and login with the user **rstudio** and password **bioc**.
+
+For Linux users, you will likely need to provide the `USER` and `USERID` to avoid permission issues (see [here](https://github.com/rocker-org/rocker/wiki/Sharing-files-with-host-machine)):
+```
+docker run  -p 8787:8787 -e USER=$USER -e USERID=$UID -e PASSWORD=bioc -v /path/to/repo/:/path/to/repo/ csangara/nichenetr:latest
+```
+You will have to instead login with the user `$USER`.
 
 ## Downloading additional files
 
@@ -60,7 +68,10 @@ Then open the `nichenet_training.Rproj` in RStudio, which will set `nichenet_tra
 
 Running NicheNet always requires general input data (**prior knowledge networks**). These files can be downloaded from [https://zenodo.org/records/7074291](https://zenodo.org/records/7074291).
 
-You can also download them via the command line with: `wget https://zenodo.org/api/records/7074291/files-archive`
+You can also download them via the command line with:
+```
+wget https://zenodo.org/api/records/7074291/files-archive
+```
 
 Once the files have been downloaded, create a `networks/` folder and extract the files there. You can run the script `check_network_files.R` to see if all required networks are correctly downloaded.
 
